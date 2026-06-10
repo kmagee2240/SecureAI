@@ -6,7 +6,7 @@ interface FoodProp {
 
 export default function FoodList({ food }: FoodProp) {
   return (
-    <div style={{ margin: "1rem" }}>
+    <div>
       {food.name}: ${food.price}
     </div>
   );

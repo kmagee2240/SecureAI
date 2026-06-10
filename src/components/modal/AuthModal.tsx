@@ -11,7 +11,6 @@ import {
 
 import { useCallback, useRef, useState } from "react";
 import { useAuth } from "../../hook/useAuth";
-import { colorScheme } from "../../types/color";
 import { loginSchema, registerSchema } from "../../user/validation";
 import { formatTimeLeft, sanitizeInput } from "../../helper";
 import { loginUser, registerUser } from "../../user/controller";
@@ -24,7 +23,7 @@ interface ModalProps {
 }
 
 const MAX_ATTEMPTS = 5;
-const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000;
 
 export default function AuthModal({
   isOpen,
@@ -40,7 +39,6 @@ export default function AuthModal({
   const [isLockedOut, setIsLockedOut] = useState(false);
   const [lockoutTimeLeft, setLockoutTimeLeft] = useState(0);
 
-  // Register-only fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState<Role>("user");
@@ -91,7 +89,6 @@ export default function AuthModal({
     const sanitizedFirstName = sanitizeInput(firstName.trim());
     const sanitizedLastName = sanitizeInput(lastName.trim());
 
-    // --- Zod validation (replaces manual isValidEmail / isValidPassword) ---
     if (mode === "register") {
       const parsed = registerSchema.safeParse({
         email: sanitizedEmail,
@@ -128,7 +125,6 @@ export default function AuthModal({
           role,
         };
 
-        // registerUser handles zod + validateUserShape + CSRF internally
         const res = await registerUser(body);
 
         if (!res.success) {
@@ -138,14 +134,11 @@ export default function AuthModal({
           return;
         }
 
-        // Role must come from server — never trust client-side role
         login(res.role as Role);
       } else {
-        // loginUser handles rate-limit + zod + CSRF internally
         const res = await loginUser(sanitizedEmail, sanitizedPassword);
 
         if (!res.success) {
-          // Pass through controller's lockout message if present
           setError(res.message);
           failedAttempts.current += 1;
           if (failedAttempts.current >= MAX_ATTEMPTS) startLockout();
@@ -178,164 +171,49 @@ export default function AuthModal({
     }
   };
 
-  const labelStyle = {
-    fontSize: "0.875rem",
-    lineHeight: "1.5rem",
-    fontWeight: 500,
-  };
-
-  const inputStyle = {
-    marginTop: "0.75rem",
-    width: "100%",
-    borderRadius: "0.5rem",
-    padding: "0.375rem 0.75rem",
-    fontSize: "0.875rem",
-    lineHeight: "1.5rem",
-    outline: "none",
-    background: colorScheme.surface2,
-    border: `1px solid ${colorScheme.border}`,
-    color: colorScheme.text,
-    opacity: isLockedOut ? 0.5 : 1,
-  };
-
-  const tabStyle = (active: boolean) => ({
-    flex: 1,
-    padding: "0.5rem",
-    fontSize: "0.875rem",
-    fontWeight: active ? 600 : 400,
-    cursor: "pointer",
-    border: "none",
-    borderBottom: active
-      ? `2px solid ${colorScheme.text}`
-      : `2px solid transparent`,
-    background: "transparent",
-    color: active ? colorScheme.text : `${colorScheme.text}88`,
-    transition: "all 0.2s ease",
-  });
-
   return (
     <div>
-      <Dialog
-        open={isOpen}
-        as="div"
-        style={{ position: "relative", zIndex: 10 }}
-        onClose={onClose}
-        __demoMode
-      >
-        {/* Overlay */}
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0, 0, 0, 0.65)",
-            backdropFilter: "blur(4px)",
-          }}
-        >
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "1rem",
-            }}
-          >
-            <DialogPanel
-              transition
-              style={{
-                width: "100%",
-                maxWidth: "28rem",
-                borderRadius: "0.75rem",
-                backgroundColor: colorScheme.surface,
-                border: `1px solid ${colorScheme.border}`,
-                padding: "1.5rem",
-                boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
-              }}
-            >
-              {/* Tab toggle */}
-              <div
-                style={{
-                  display: "flex",
-                  marginBottom: "1.5rem",
-                  borderBottom: `1px solid ${colorScheme.border}`,
-                }}
-              >
-                <button
-                  type="button"
-                  style={tabStyle(mode === "login")}
-                  onClick={() => switchMode("login")}
-                >
+      <Dialog open={isOpen} as="div" onClose={onClose} __demoMode>
+        <div>
+          <div>
+            <DialogPanel transition>
+              <div>
+                <button type="button" onClick={() => switchMode("login")}>
                   Login
                 </button>
-                <button
-                  type="button"
-                  style={tabStyle(mode === "register")}
-                  onClick={() => switchMode("register")}
-                >
+                <button type="button" onClick={() => switchMode("register")}>
                   Register
                 </button>
               </div>
 
-              <DialogTitle as="h3" style={{ color: colorScheme.text }}>
+              <DialogTitle as="h3">
                 {mode === "login" ? "Welcome back" : "Create an account"}
               </DialogTitle>
 
-              <div
-                style={{
-                  maxWidth: "32rem",
-                  padding: "0 1rem",
-                  color: colorScheme.text,
-                }}
-              >
+              <div>
                 <p>
                   {mode === "login"
                     ? "Please enter your credentials to log in."
                     : "Fill in your details to get started."}
                 </p>
 
-                {/* Error / lockout message */}
                 {error && (
-                  <p
-                    role="alert"
-                    aria-live="assertive"
-                    style={{ color: "red", fontSize: "0.875rem" }}
-                  >
+                  <p role="alert" aria-live="assertive">
                     {error}
                     {isLockedOut && lockoutTimeLeft > 0 && (
-                      <span>
-                        {" "}
-                        ({formatTimeLeft(lockoutTimeLeft)} remaining)
-                      </span>
+                      <span> ({formatTimeLeft(lockoutTimeLeft)} remaining)</span>
                     )}
                   </p>
                 )}
 
                 <form onSubmit={handleSubmit} noValidate autoComplete="on">
-                  <Fieldset
-                    disabled={isLockedOut || isLoading}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "1.5rem",
-                      borderRadius: "0.75rem",
-                      background: colorScheme.surface2,
-                      padding: "2.5rem",
-                    }}
-                  >
-                    {/* Register-only fields */}
+                  <Fieldset disabled={isLockedOut || isLoading}>
                     {mode === "register" && (
                       <>
                         <Field>
-                          <Label
-                            style={labelStyle}
-                            htmlFor="register-firstname"
-                          >
-                            First Name
-                          </Label>
+                          <Label htmlFor="register-firstname">First Name</Label>
                           <Input
                             id="register-firstname"
-                            style={inputStyle}
                             type="text"
                             value={firstName}
                             autoComplete="given-name"
@@ -348,12 +226,9 @@ export default function AuthModal({
                         </Field>
 
                         <Field>
-                          <Label style={labelStyle} htmlFor="register-lastname">
-                            Last Name
-                          </Label>
+                          <Label htmlFor="register-lastname">Last Name</Label>
                           <Input
                             id="register-lastname"
-                            style={inputStyle}
                             type="text"
                             value={lastName}
                             autoComplete="family-name"
@@ -366,20 +241,13 @@ export default function AuthModal({
                         </Field>
 
                         <Field>
-                          <Label style={labelStyle} htmlFor="register-role">
-                            Role
-                          </Label>
+                          <Label htmlFor="register-role">Role</Label>
                           <select
                             id="register-role"
                             value={role}
                             onChange={(e) =>
                               setRole(e.target.value as "user" | "admin")
                             }
-                            style={{
-                              ...inputStyle,
-                              marginTop: "0.75rem",
-                              cursor: "pointer",
-                            }}
                           >
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
@@ -388,10 +256,8 @@ export default function AuthModal({
                       </>
                     )}
 
-                    {/* Shared fields */}
                     <Field>
                       <Label
-                        style={labelStyle}
                         htmlFor={
                           mode === "login" ? "login-email" : "register-email"
                         }
@@ -400,7 +266,6 @@ export default function AuthModal({
                       </Label>
                       <Input
                         id={mode === "login" ? "login-email" : "register-email"}
-                        style={inputStyle}
                         type="email"
                         value={email}
                         autoComplete="email"
@@ -414,7 +279,6 @@ export default function AuthModal({
 
                     <Field>
                       <Label
-                        style={labelStyle}
                         htmlFor={
                           mode === "login"
                             ? "login-password"
@@ -429,7 +293,6 @@ export default function AuthModal({
                             ? "login-password"
                             : "register-password"
                         }
-                        style={inputStyle}
                         type="password"
                         value={password}
                         autoComplete={
@@ -440,30 +303,12 @@ export default function AuthModal({
                         onChange={(e) => setPassword(e.target.value)}
                       />
                       {mode === "register" && (
-                        <p
-                          style={{
-                            fontSize: "0.75rem",
-                            marginTop: "0.25rem",
-                            color: `${colorScheme.text}88`,
-                          }}
-                        >
-                          Min 8 characters, 1 uppercase, 1 number
-                        </p>
+                        <p>Min 8 characters, 1 uppercase, 1 number</p>
                       )}
                     </Field>
                   </Fieldset>
 
-                  <Button
-                    type="submit"
-                    disabled={isLockedOut || isLoading}
-                    style={{
-                      opacity: isLockedOut || isLoading ? 0.6 : 1,
-                      cursor:
-                        isLockedOut || isLoading ? "not-allowed" : "pointer",
-                      marginTop: "1rem",
-                      width: "100%",
-                    }}
-                  >
+                  <Button type="submit" disabled={isLockedOut || isLoading}>
                     {isLoading
                       ? mode === "login"
                         ? "Logging in…"
@@ -474,29 +319,13 @@ export default function AuthModal({
                   </Button>
                 </form>
 
-                {/* Mode switch link */}
-                <p
-                  style={{
-                    textAlign: "center",
-                    fontSize: "0.875rem",
-                    marginTop: "1rem",
-                    color: `${colorScheme.text}88`,
-                  }}
-                >
+                <p>
                   {mode === "login" ? (
                     <>
                       Don't have an account?{" "}
                       <button
                         type="button"
                         onClick={() => switchMode("register")}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: colorScheme.text,
-                          cursor: "pointer",
-                          fontWeight: 600,
-                          textDecoration: "underline",
-                        }}
                       >
                         Register
                       </button>
@@ -504,18 +333,7 @@ export default function AuthModal({
                   ) : (
                     <>
                       Already have an account?{" "}
-                      <button
-                        type="button"
-                        onClick={() => switchMode("login")}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: colorScheme.text,
-                          cursor: "pointer",
-                          fontWeight: 600,
-                          textDecoration: "underline",
-                        }}
-                      >
+                      <button type="button" onClick={() => switchMode("login")}>
                         Log in
                       </button>
                     </>
