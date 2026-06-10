@@ -8,9 +8,11 @@ export default function Nav() {
 
   const routes: { path: string; name: string }[] = [
     { path: "", name: "Home" },
-    { path: "dashboard", name: "dashboard" },
-    { path: "info", name: "info" },
     { path: "playground", name: "playground" },
+    { path: "/dashboard", name: "Dashboard" },
+    { path: "/transactions", name: "Transactions" },
+    { path: "/budget", name: "Budget" },
+    { path: "/settings", name: "Settings" },
   ];
   return (
     <>
