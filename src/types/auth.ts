@@ -1,12 +1,12 @@
 import { createContext } from "react";
 
-export type Role = "admin" | "user" | "guest";
+export type Role = "admin" | "user";
+export type Tab = "login" | "register";
 
 export interface AuthContextType {
   role: Role;
   isAdmin: boolean;
   isUser: boolean;
-  isGuest: boolean;
   login: (role: Role) => void;
   logout: () => void;
 }
