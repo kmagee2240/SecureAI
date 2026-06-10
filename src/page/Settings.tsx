@@ -1,76 +1,62 @@
+import { Button, Card, Divider, Group, PasswordInput, Select, SimpleGrid, Stack, Text, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
 import { useAuth } from "../hook/useAuth";
 
 export default function Settings() {
   const { role } = useAuth();
-  const [currency, setCurrency] = useState("USD");
-  const [period, setPeriod] = useState("Monthly");
+  const [currency, setCurrency] = useState<string | null>("USD");
+  const [period, setPeriod] = useState<string | null>("Monthly");
 
   return (
-    <div>
+    <Stack gap="md">
+      <Title order={3}>Settings</Title>
+
       {/* Profile */}
-      <div>
-        <div>
-          <p>Profile</p>
-          <button>Edit</button>
-        </div>
-        <div>
-          <div>
-            <label>First name</label>
-            <div>Kiki</div>
-          </div>
-          <div>
-            <label>Last name</label>
-            <div>—</div>
-          </div>
-        </div>
-        <div>
-          <label>Email</label>
-          <div>bgcdeveloper3@gmail.com</div>
-        </div>
-        <div>
-          <label>Role</label>
-          <div>{role}</div>
-        </div>
-      </div>
+      <Card withBorder radius="md" padding="md">
+        <Group justify="space-between" mb="md">
+          <Text fw={500}>Profile</Text>
+          <Button variant="subtle" size="xs">Edit</Button>
+        </Group>
+        <Divider mb="md" />
+        <Stack gap="sm">
+          <SimpleGrid cols={2}>
+            <TextInput label="First name" value="Kiki" readOnly />
+            <TextInput label="Last name" value="—" readOnly />
+          </SimpleGrid>
+          <TextInput label="Email" value="bgcdeveloper3@gmail.com" readOnly />
+          <TextInput label="Role" value={role} readOnly />
+        </Stack>
+      </Card>
 
       {/* Security */}
-      <div>
-        <p>Security</p>
-        <div>
-          <label>Password</label>
-          <div>••••••••••••</div>
-        </div>
-        <button>Change password</button>
-      </div>
+      <Card withBorder radius="md" padding="md">
+        <Text fw={500} mb="md">Security</Text>
+        <Divider mb="md" />
+        <Stack gap="sm">
+          <PasswordInput label="Password" value="password123" readOnly />
+          <Button variant="outline" w="fit-content">Change password</Button>
+        </Stack>
+      </Card>
 
       {/* Preferences */}
-      <div>
-        <p>Preferences</p>
-        <div>
-          <label htmlFor="currency">Currency</label>
-          <select
-            id="currency"
+      <Card withBorder radius="md" padding="md">
+        <Text fw={500} mb="md">Preferences</Text>
+        <Divider mb="md" />
+        <SimpleGrid cols={2}>
+          <Select
+            label="Currency"
             value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-          >
-            <option value="USD">USD ($)</option>
-            <option value="EUR">EUR (€)</option>
-            <option value="GBP">GBP (£)</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="period">Budget period</label>
-          <select
-            id="period"
+            onChange={setCurrency}
+            data={["USD", "EUR", "GBP"]}
+          />
+          <Select
+            label="Budget period"
             value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-          >
-            <option value="Monthly">Monthly</option>
-            <option value="Weekly">Weekly</option>
-          </select>
-        </div>
-      </div>
-    </div>
+            onChange={setPeriod}
+            data={["Monthly", "Weekly"]}
+          />
+        </SimpleGrid>
+      </Card>
+    </Stack>
   );
 }

@@ -1,27 +1,30 @@
-import { Button } from "@headlessui/react";
+import { Anchor, Button, Group, Title } from "@mantine/core";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import AuthModal from "./modal/AuthModal";
 
+const routes: { path: string; name: string }[] = [{ path: "/", name: "Home" }];
+
 export default function Nav() {
   const [open, setOpen] = useState(false);
 
-  const routes: { path: string; name: string }[] = [
-    { path: "", name: "Home" },
-    { path: "playground", name: "playground" },
-    { path: "/dashboard", name: "Dashboard" },
-    { path: "/transactions", name: "Transactions" },
-    { path: "/budget", name: "Budget" },
-    { path: "/settings", name: "Settings" },
-  ];
   return (
     <>
-      {routes.map((routes, key: number) => (
-        <Link key={key} to={routes.path}>
-          {routes.name}
-        </Link>
-      ))}
-      <Button onClick={() => setOpen(true)}>Log In/ Register</Button>
+      <Group
+        justify="space-between"
+        p="md"
+        style={{ borderBottom: "1px solid var(--mantine-color-gray-2)" }}
+      >
+        <Group gap="lg">
+          <Title order={4}>FinTrack</Title>
+          {routes.map((route) => (
+            <Anchor key={route.path} component={Link} to={route.path} size="sm">
+              {route.name}
+            </Anchor>
+          ))}
+        </Group>
+        <Button onClick={() => setOpen(true)}>Log in / Register</Button>
+      </Group>
       <AuthModal isOpen={open} onClose={() => setOpen(false)} />
     </>
   );
