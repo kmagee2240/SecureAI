@@ -10,17 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.1",
     "@headlessui/react": "^2.2.10",
     "@supabase/supabase-js": "^2.105.0",
     "@tanstack/react-query": "^5.100.5",
     "axios": "^1.15.2",
+    "chalk": "^5.6.2",
+    "glob": "^13.0.6",
+    "ora": "^9.4.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",
-    "@anthropic-ai/sdk": "^0.100.1",
-    "chalk": "^5.6.2",
-    "glob": "^13.0.6",
-    "ora": "^9.4.0"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
