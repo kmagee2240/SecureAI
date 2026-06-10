@@ -2,6 +2,7 @@ import { createContext } from "react";
 
 export type Role = "admin" | "user";
 export type Tab = "login" | "register";
+export type TabId = "overview" | "events" | "ips" | "risk";
 
 export interface AuthContextType {
   role: Role;
